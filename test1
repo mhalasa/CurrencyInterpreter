@@ -1,0 +1,28 @@
+defaultCurrency: dol 
+pln: 3.40                         			 
+eur: 0.82						
+
+function fun(a, b){
+	
+	i = 0;				
+	if (a > b){
+		while(i < 10){
+			if ( a > 1000){
+				break;
+			}
+			a = a + b;		
+			i = i + 1;
+		}		
+		return a;		
+	}else{
+		i = 14;
+		c = (i*b - 5pln – a)pln;
+		return c dol;			
+	}
+}
+
+function main(){
+	a = 30dol;
+	b = 20pln;
+	c = fun(a,b);
+	print( c); }
