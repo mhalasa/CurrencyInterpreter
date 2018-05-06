@@ -1,26 +1,5 @@
-defaultCurrency: dol 
-pln: 3.40                         			 
-eur: 0.82
-
-function f1(x, y, z)
-{
-	a = 5.34dol;
-	b = 103.30 eur;
-	d = 20 pln;
-	
-	for (i = 0; i < 10; i++)
-	{
-		a = (b + y - 3dol + d)pln;
-	}
-
-	return a;
-}
-
-function main()
-{
-	x =3dol;
-	y = 3eur;
-	z = 2 pln;
-	a = f1(x,y,z);
-	printf(a);
+function main(){
+	i = 14.54;
+	c = (i - 5 pln - 9 ) dol;
+	return c dol;
 }

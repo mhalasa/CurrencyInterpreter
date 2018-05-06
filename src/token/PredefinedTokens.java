@@ -14,6 +14,7 @@ public class PredefinedTokens {
         keywords.put("else", TokenType.ELSE);
         keywords.put("while", TokenType.WHILE);
         keywords.put("return", TokenType.RETURN);
+        keywords.put("print", TokenType.PRINT);
 
         operators.put("<", TokenType.LOWER);
         operators.put("<=", TokenType.LOWER_EQUALS);
@@ -29,7 +30,6 @@ public class PredefinedTokens {
         operators.put("-", TokenType.SUB);
         operators.put("*", TokenType.MUL);
         operators.put("/", TokenType.DIV);
-        operators.put(":", TokenType.COLON);
         operators.put(";", TokenType.SEMICOLON);
         operators.put("=", TokenType.ASSIGN);
         operators.put(",", TokenType.COMMA);

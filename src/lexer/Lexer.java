@@ -10,6 +10,7 @@ public class Lexer {
     private Source source;
     private char current;
 
+
     public Lexer(String fileName) {
         source = new Source(fileName);
         current = source.getNextChar();

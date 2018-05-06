@@ -11,6 +11,7 @@ public enum TokenType {
     ELSE,
     RETURN,
     ID,
+    PRINT,
 
     LOWER,
     LOWER_EQUALS,
@@ -28,7 +29,6 @@ public enum TokenType {
     SUB,
     MUL,
     DIV,
-    COLON,
     SEMICOLON,
     ASSIGN,
     COMMA,
