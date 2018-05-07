@@ -2,14 +2,18 @@ package structures;
 
 public class Variable extends Node {
     private String name;
-    private double value;
+    private Literal value;
 
-    public void setName(final String name) {
-        this.name = name;
+    public Literal getValue() {
+        return value;
     }
 
-    public void setValue(final double value) {
+    public void setValue(Literal value) {
         this.value = value;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Type getType() {
@@ -18,9 +22,5 @@ public class Variable extends Node {
 
     public String getName() {
         return name;
-    }
-
-    public double getValue() {
-        return value;
     }
 }

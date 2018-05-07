@@ -4,8 +4,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ConvertExpression extends Node{
-    public Node operand;
-    public List<String> currencies = new LinkedList<>();
+    private Node operand;
+    private List<String> currencies = new LinkedList<>();
 
     public Node getOperand() {
         return operand;

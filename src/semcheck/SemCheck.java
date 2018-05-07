@@ -1,6 +1,5 @@
 package semcheck;
 
-import structures.ex.*;
 import structures.*;
 import java.util.*;
 import static structures.Node.Type.*;
@@ -8,22 +7,18 @@ import static structures.Node.Type.*;
 
 public class SemCheck {
     private Program program;
-    private Map<String, FunctionEx> definedFunctions = new HashMap<>();
+    private Map<String, Function> definedFunctions = new HashMap<>();
 
-    public ProgramEx check(final Program program) throws Exception {
+    public void check(Program program) throws Exception {
         definedFunctions.clear();
         this.program = program;
 
         scanDefinedFunctions();
         checkMain();
 
-        List<FunctionEx> functions = new LinkedList<>();
-        for (final Function function : program.getFunctions()) {
-            functions.add(checkFunction(function));
+        for (Function function : program.getFunctions()) {
+            checkFunction(function);
         }
-
-        ProgramEx programEx = new ProgramEx(functions, this.program.getConfigBlock());
-        return programEx;
     }
 
 
@@ -37,18 +32,18 @@ public class SemCheck {
     }
 
     private void scanDefinedFunctions() throws Exception {
-        for (final Function function : program.getFunctions()) {
+        for (Function function : program.getFunctions()) {
             scanDefinedFunction(function);
         }
     }
 
-    private void scanDefinedFunction(final Function function) throws Exception {
+    private void scanDefinedFunction(Function function) throws Exception {
         if (definedFunctions.containsKey(function.getName())) {
             throw new Exception("Redefined function: " + function.getName());
         }
-        FunctionEx functionEx = new FunctionEx();
-        functionEx.setName(function.name);
-        for (final String parameter : function.getParameters()) {
+        Function functionEx = new Function();
+        functionEx.setName(function.getName());
+        for (String parameter : function.getParameters()) {
             if (!functionEx.getScope().addVariable(parameter)) {
                 throw new Exception(new StringBuilder()
                         .append("Dupicated parameter : ")
@@ -60,114 +55,100 @@ public class SemCheck {
         definedFunctions.put(function.getName(), functionEx);
     }
 
-    private FunctionEx checkFunction(final Function function) throws Exception {
-        FunctionEx functionEx = definedFunctions.get(function.getName());
-        functionEx.getInstructions().add(checkBlock(functionEx.getScope(), function.getStatementBlock()));
-        return functionEx;
-
+    private void checkFunction(Function function) throws Exception {
+        Function functionEx = definedFunctions.get(function.getName());
+        checkBlock(functionEx.getScope(), function.getStatementBlock());
     }
 
-    private Block checkBlock(final Scope scope, final StatementBlock statementBlock) throws Exception {
-        Block block = new Block();
-        block.getScope().setParentScope(scope);
-        for (final Node instruction : statementBlock.getInstructions()) {
+    private void checkBlock(Scope scope, StatementBlock statementBlock) throws Exception {
+        statementBlock.getScope().setParentScope(scope);
+        for (Node instruction : statementBlock.getInstructions()) {
             switch (instruction.getType()) {
                 case AssignStatement:
-                    final AssingStatement assingStatement = (AssingStatement) instruction;
-                    block.addInstruction(checkAssignment(block.getScope(), assingStatement));
+                    AssingStatement assingStatement = (AssingStatement) instruction;
+                    checkAssignment(statementBlock.getScope(), assingStatement);
                     break;
                 case ReturnStatement:
-                    final ReturnStatement returnStatement = (ReturnStatement) instruction;
-                    block.addInstruction(checkReturnStatement(block.getScope(), returnStatement));
+                    ReturnStatement returnStatement = (ReturnStatement) instruction;
+                    checkReturnStatement(statementBlock.getScope(), returnStatement);
                     break;
                 case FunCall:
-                    final FunCall call = (FunCall) instruction;
-                    block.addInstruction(checkFunCall(block.getScope(), call));
+                    FunCall call = (FunCall) instruction;
+                    checkFunCall(statementBlock.getScope(), call);
                     break;
                 case IfStatement:
-                    final IfStatement ifStatement = (IfStatement) instruction;
-                    block.addInstruction(checkIfStatement(block.getScope(), ifStatement));
+                    IfStatement ifStatement = (IfStatement) instruction;
+                    checkIfStatement(statementBlock.getScope(), ifStatement);
                     break;
                 case WhileStatement:
-                    final WhileStatement whileStatement = (WhileStatement) instruction;
-                    block.addInstruction(checkWhileStatement(block.getScope(), whileStatement));
+                    WhileStatement whileStatement = (WhileStatement) instruction;
+                    checkWhileStatement(statementBlock.getScope(), whileStatement);
                     break;
             }
         }
-        return block;
     }
 
-    private Instruction checkWhileStatement(final Scope scope, final WhileStatement whileStatement) throws Exception {
-        While whileEx = new While();
-        whileEx.setCondition(checkCondition(scope, whileStatement.getCondition()));
-        whileEx.setBlock(checkBlock(scope, whileStatement.getStatementBlock()));
-        return whileEx;
+    private void checkWhileStatement(Scope scope, WhileStatement whileStatement) throws Exception {
+        checkCondition(scope, whileStatement.getCondition());
+        checkBlock(scope, whileStatement.getStatementBlock());
     }
 
-    private Instruction checkAssignment(final Scope scope, final AssingStatement assingStatement) throws Exception {
-        Assignment assignment = new Assignment();
+    private void checkAssignment(Scope scope, AssingStatement assingStatement) throws Exception {
         String variableName = assingStatement.getVariable().getName();
         if (!scope.hasVariable(variableName)) {
             scope.addVariable(variableName);
         }
-        assignment.setName(variableName);
-        assignment.setValue(checkExpression(scope, (Expression) assingStatement.getValue()));
-        return assignment;
+        checkExpression(scope, (Expression) assingStatement.getValue());
     }
 
-    private ExpressionEx checkExpression(final Scope scope, final Expression expr) throws Exception {
-        ExpressionEx expression = new ExpressionEx();
-        expression.setOperations(expr.getOperations());
-        for (final Node operand : expr.getOperands()) {
+    private void checkExpression(Scope scope, Expression expr) throws Exception {
+        for (Node operand : expr.getOperands()) {
             if (operand.getType() == Expression) {
-                expression.addOperand(checkExpression(scope, (Expression) operand));
+                checkExpression(scope, (Expression) operand);
             } else if (operand.getType() == ConvertExpression) {
-                expression.addOperand(checkConvertExpression(scope, (ConvertExpression) operand));
+                checkConvertExpression(scope, (ConvertExpression) operand);
             }
         }
-        return expression;
     }
 
-    private ConvertExpressionEx checkConvertExpression(final Scope scope, final ConvertExpression expr) throws Exception {
-        ConvertExpressionEx expression = new ConvertExpressionEx();
+    private void checkConvertExpression(Scope scope, ConvertExpression expr) throws Exception {
         for (String currency : expr.getCurrencies()) {
-            if (!program.getConfigBlock().getExchangeRate().containsKey(currency))
-                if (!program.getConfigBlock().getDefaultCurrency().equals(currency))
+            if (program.getConfigBlock() != null && !program.getConfigBlock().getExchangeRate().containsKey(currency)) {
+                if (!program.getConfigBlock().getDefaultCurrency().equals(currency)) {
                     throw new Exception("Undefined currency \"" + currency + "\"");
+                }
+            }
+            else if (program.getConfigBlock() == null) {
+                throw new Exception("Undefined currency \"" + currency + "\"");
+            }
         }
         Node operand = expr.getOperand();
         if (operand.getType() == Literal) {
-            expression.setOperand(checkLiteral((Literal) operand));
+            checkLiteral((Literal) operand);
         } else if (operand.getType() == Expression){
-            expression.setOperand(checkExpression(scope, (Expression) operand));
+            checkExpression(scope, (Expression) operand);
         } else if (operand.getType() == Variable) {
-            expression.setOperand(checkVariable(scope, (Variable) operand));
+            checkVariable(scope, (Variable) operand);
         } else if (operand.getType() == FunCall){
-            expression.setOperand(checkFunCall(scope, (FunCall) operand));
+            checkFunCall(scope, (FunCall) operand);
         }
-        return expression;
     }
 
-    private LiteralEx checkLiteral(final Literal lit) {
-        LiteralEx literal = new LiteralEx();
-        literal.setValue(lit.getValue());
-        return literal;
+    private void checkLiteral(Literal lit) {
+        ;
     }
 
-    private VariableEx checkVariable(final Scope scope, final Variable var) throws Exception {
-        VariableEx variable = new VariableEx();
+    private void checkVariable(Scope scope, Variable var) throws Exception {
         if (!scope.hasVariable(var.getName())) {
             throw new Exception("Usage of undefined variable: " + var.getName());
         }
-        variable.setName(var.getName());
-        return variable;
     }
 
-    private Call checkFunCall(final Scope scope, final FunCall funCall) throws Exception {
+    private void checkFunCall(Scope scope, FunCall funCall) throws Exception {
         if (!definedFunctions.containsKey(funCall.getName())) {
             throw new Exception("Undefined function: " + funCall.getName());
         }
-        FunctionEx function = definedFunctions.get(funCall.getName());
+        Function function = definedFunctions.get(funCall.getName());
         if ((PrintStatement.equals(funCall.getType()) && funCall.getArguments().size() > 1)) {
             throw new Exception("Invalid arguments number for function print"
                     + ". Expected : 1" + " but found " + funCall.getArguments().size());
@@ -177,46 +158,34 @@ public class SemCheck {
                     + ". Expected " + function.getScope().getVariables().size()
                     + " but found " + funCall.getArguments().size());
         }
-        Call call = new Call();
-        funCall.setName(funCall.getName());
-        for (final Node argument : funCall.getArguments()) {
-            call.addArgument(checkExpression(scope, (Expression) argument));
+
+        for (Node argument : funCall.getArguments()) {
+            checkExpression(scope, (Expression) argument);
         }
-        return call;
     }
 
-    private Instruction checkReturnStatement(final Scope scope,
-                                             final ReturnStatement returnStatement) throws Exception {
-        final Return returnSt = new Return();
-        returnSt.setValue(checkExpression(scope, (Expression) returnStatement.getReturnValue()));
-        return returnSt;
+    private void checkReturnStatement(Scope scope, ReturnStatement returnStatement) throws Exception {
+        checkExpression(scope, (Expression) returnStatement.getReturnValue());
     }
 
-    private Instruction checkIfStatement(final Scope scope,
-                                         final IfStatement ifStatement) throws Exception {
-        If ifSt = new If();
-        ifSt.setCondition(checkCondition(scope, ifStatement.getCondition()));
-        ifSt.setTrueBlock(checkBlock(scope, ifStatement.getTrueBlock()));
+    private void checkIfStatement(Scope scope, IfStatement ifStatement) throws Exception {
+        checkCondition(scope, ifStatement.getCondition());
+        checkBlock(scope, ifStatement.getTrueBlock());
         if (ifStatement.hasElseBlock()) {
-            ifSt.setElseBlock(checkBlock(scope, ifStatement.getElseBlock()));
+            checkBlock(scope, ifStatement.getElseBlock());
         }
-        return ifSt;
     }
 
-    private ConditionEx checkCondition(final Scope scope, final Condition condition) throws Exception {
-        ConditionEx cond = new ConditionEx();
-        cond.setIsNegated(condition.isNegated());
-        cond.setOperation(condition.getOperation());
-        for (final Node operand : condition.getOperands()) {
+    private void checkCondition(Scope scope, Condition condition) throws Exception {
+        for (Node operand : condition.getOperands()) {
             if (Condition.equals(operand.getType())) {
-                cond.addOperand(checkCondition(scope, (Condition) operand));
+                checkCondition(scope, (Condition) operand);
             } else if (Variable.equals(operand.getType())) {
-                cond.addOperand(checkVariable(scope, (Variable) operand));
+                checkVariable(scope, (Variable) operand);
             } else if (Literal.equals(operand.getType())) {
-                cond.addOperand(checkLiteral((Literal) operand));
+                checkLiteral((Literal) operand);
             }
         }
-        return cond;
     }
 
 }

@@ -7,11 +7,11 @@ import java.util.List;
 
 
 public class Condition extends Node {
-    public boolean isNegated = false;
-    public TokenType operator = TokenType.UNDEFINED;
-    public List<Node> operands = new LinkedList<>();
+    private boolean isNegated = false;
+    private TokenType operator = TokenType.UNDEFINED;
+    private List<Node> operands = new LinkedList<>();
 
-    public void setOperator(final TokenType operator) {
+    public void setOperator(TokenType operator) {
         this.operator = operator;
     }
 
@@ -19,7 +19,7 @@ public class Condition extends Node {
         this.isNegated = isNegated;
     }
 
-    public void addOperand(final Node operand) {
+    public void addOperand(Node operand) {
         operands.add(operand);
     }
 

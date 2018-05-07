@@ -1,13 +1,14 @@
-package structures.ex;
+package structures;
 
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+
 
 public class Scope {
     private Scope parentScope = null;
-    //private Set<String> variables = new HashSet<>();
     private List<String> variables = new LinkedList<>();
 
-    public boolean addVariable(final String name) {
+    public boolean addVariable(String name) {
         if (variables.contains(name)) {
             return false;
         } else {
@@ -20,15 +21,15 @@ public class Scope {
         return variables;
     }
 
-    public void setVariable(final String name) {
+    public void setVariable(String name) {
         variables.add(name);
     }
 
-    public void setParentScope(final Scope parentScope) {
+    public void setParentScope(Scope parentScope) {
         this.parentScope = parentScope;
     }
 
-    public boolean hasVariable(final String variableName) {
+    public boolean hasVariable(String variableName) {
         if (!variables.contains(variableName) && parentScope != null) {
             return parentScope.hasVariable(variableName);
         }

@@ -8,10 +8,10 @@ public class FunCall extends Node {
     private String name;
     private List<Node> arguments = new LinkedList<>();
 
-    public void setName(final String name) {
+    public void setName(String name) {
         this.name = name;
     }
-    public void addArgument(final Node argument) {
+    public void addArgument(Node argument) {
         arguments.add(argument);
     }
     public Type getType() {

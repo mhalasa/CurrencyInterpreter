@@ -1,19 +1,19 @@
 package structures;
 
 public class IfStatement extends Node {
-    public Condition condition;
-    public StatementBlock trueBlock;
-    public StatementBlock elseBlock = null;
+    private Condition condition;
+    private StatementBlock trueBlock;
+    private StatementBlock elseBlock = null;
 
-    public void setCondition(final Condition cond) {
+    public void setCondition(Condition cond) {
         this.condition = cond;
     }
 
-    public void setTrueBlock(final StatementBlock trueBlock) {
+    public void setTrueBlock(StatementBlock trueBlock) {
         this.trueBlock = trueBlock;
     }
 
-    public void setElseBlock(final StatementBlock elseBlock) {
+    public void setElseBlock(StatementBlock elseBlock) {
         this.elseBlock = elseBlock;
     }
 

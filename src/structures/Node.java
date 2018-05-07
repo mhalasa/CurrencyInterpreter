@@ -11,6 +11,7 @@ public abstract class Node {
         IfStatement,
         ReturnStatement,
         StatementBlock,
+        Function,
         Literal,
         Variable,
         WhileStatement,

@@ -1,3 +1,6 @@
+defaultCurrency dol
+pln 4.33
+
 function main(){
 	i = 14.54;
 	c = (i - 5 pln - 9 ) dol;

@@ -2,9 +2,9 @@ package structures;
 
 
 public class ReturnStatement extends Node {
-    public Node returnValue;
+    private Node returnValue;
 
-    public void setReturnValue(final Node value) {
+    public void setReturnValue(Node value) {
         this.returnValue = value;
     }
 

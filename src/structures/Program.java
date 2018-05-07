@@ -4,8 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Program {
-
-    public List<Function> functions = new LinkedList<>();
+    private List<Function> functions = new LinkedList<>();
     private ConfigBlock configBlock;
 
     public List<Function> getFunctions() {
@@ -17,7 +16,7 @@ public class Program {
     public void setConfigBlock(ConfigBlock configBlock) {
         this.configBlock = configBlock;
     }
-    public void addFunction(final Function function) {
+    public void addFunction(Function function) {
         functions.add(function);
     }
 }

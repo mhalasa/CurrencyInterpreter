@@ -32,8 +32,8 @@ public class ParserTest {
         }catch (Exception e){
             e.printStackTrace();
         }
-        Function function = program.functions.get(0);
-        Assert.assertEquals(2, function.statementBlock.instructions.size());
+        Function function = program.getFunctions().get(0);
+        Assert.assertEquals(2, function.getStatementBlock().getInstructions().size());
         Assert.assertEquals(Node.Type.AssignStatement, function.getStatementBlock().getInstructions().get(0).getType());
 
         AssingStatement assingStatement = (AssingStatement) function.getStatementBlock().getInstructions().get(0);

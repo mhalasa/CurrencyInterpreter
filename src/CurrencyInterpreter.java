@@ -1,16 +1,8 @@
 import lexer.Lexer;
 import parser.Parser;
 import semcheck.SemCheck;
-import structures.AssingStatement;
-import structures.Expression;
-import structures.Literal;
 import structures.Program;
-import structures.ex.FunctionEx;
-import structures.ex.ProgramEx;
-import token.Token;
-import token.TokenType;
 
-import java.util.List;
 
 public class CurrencyInterpreter {
     public static void main(String[] args) {
@@ -25,11 +17,10 @@ public class CurrencyInterpreter {
 
         Lexer lexer = new Lexer("test1");
         Parser parser = new Parser(lexer);
-        Program program = null;
         SemCheck semCheck = new SemCheck();
         try {
-            program = parser.parse();
-            ProgramEx functions = semCheck.check(program);
+            Program program = parser.parse();
+            semCheck.check(program);
         } catch (Exception e) {
             e.printStackTrace();
             return;

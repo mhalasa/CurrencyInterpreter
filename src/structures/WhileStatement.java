@@ -2,14 +2,14 @@ package structures;
 
 
 public class WhileStatement extends Node {
-    public Condition condition;
-    public StatementBlock statementBlock;
+    private Condition condition;
+    private StatementBlock statementBlock;
 
-    public void setCondition(final Condition condition) {
+    public void setCondition(Condition condition) {
         this.condition = condition;
     }
 
-    public void setStatementBlock(final StatementBlock statementBlock) {
+    public void setStatementBlock(StatementBlock statementBlock) {
         this.statementBlock = statementBlock;
     }
 

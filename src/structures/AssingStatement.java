@@ -13,11 +13,11 @@ public class AssingStatement extends Node {
         return value;
     }
 
-    public void setVariable(final Variable variable) {
+    public void setVariable(Variable variable) {
         this.variable = variable;
     }
 
-    public void setValue(final Node value) {
+    public void setValue(Node value) {
         this.value = value;
     }
 

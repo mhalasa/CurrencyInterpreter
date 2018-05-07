@@ -3,8 +3,17 @@ package structures;
 
 public class Literal extends Node {
     private double value;
+    private String currency;
 
-    public void setValue(final double value) {
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public void setValue(double value) {
         this.value = value;
     }
 
