@@ -13,7 +13,7 @@ function fun(a, b){
 		return a;		
 	}else{
 		i = 14;
-		c = (i*b - 5 zbd - a) pln;
+		c = (i*b - i /5 dol - a) pln;
 		return c dol;			
 	}
 }

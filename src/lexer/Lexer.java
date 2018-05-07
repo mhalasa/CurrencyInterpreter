@@ -16,6 +16,11 @@ public class Lexer {
         current = source.getNextChar();
     }
 
+    public Lexer(Source source){
+        this.source = source;
+        current = source.getNextChar();
+    }
+
     public Token getNextToken() {
         ignoreWhiteSpaces();
 

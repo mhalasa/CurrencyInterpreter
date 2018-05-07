@@ -1,8 +1,6 @@
 package structures;
 
-/**
- * Created by wprzecho on 30.05.16.
- */
+
 public class WhileStatement extends Node {
     public Condition condition;
     public StatementBlock statementBlock;
@@ -18,7 +16,6 @@ public class WhileStatement extends Node {
     public Type getType() {
         return Type.WhileStatement;
     }
-
 
     public Condition getCondition() {
         return condition;

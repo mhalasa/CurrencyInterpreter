@@ -5,9 +5,7 @@ import token.TokenType;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * Created by wprzecho on 30.05.16.
- */
+
 public class Condition extends Node {
     public boolean isNegated = false;
     public TokenType operator = TokenType.UNDEFINED;

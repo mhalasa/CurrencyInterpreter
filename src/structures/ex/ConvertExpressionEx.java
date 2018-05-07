@@ -27,8 +27,4 @@ public class ConvertExpressionEx implements ExpressionOperand {
         this.currencies = currencies;
     }
 
-    @Override
-    public LiteralEx execute(Scope scope, Map<String, FunctionEx> functions) {
-        return null;
-    }
 }

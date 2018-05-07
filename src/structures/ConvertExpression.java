@@ -19,11 +19,9 @@ public class ConvertExpression extends Node{
         this.currencies = currencies;
     }
 
-
     public List<String> getCurrencies() {
         return currencies;
     }
-
 
     @Override
     public Type getType() {

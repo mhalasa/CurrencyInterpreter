@@ -10,15 +10,12 @@ public class ConfigBlock {
     public String getDefaultCurrency() {
         return defaultCurrency;
     }
-
     public Map<String, Double> getExchangeRate() {
         return exchangeRate;
     }
-
     public void setDefaultCurrency(String defaultCurrency) {
         this.defaultCurrency = defaultCurrency;
     }
-
     public void addCurrency(String currency, double exchangeRate){
         this.exchangeRate.put(currency, exchangeRate);
     }

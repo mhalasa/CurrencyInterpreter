@@ -1,8 +1,6 @@
 package structures;
 
-/**
- * Created by wprzecho on 30.05.16.
- */
+
 public class ReturnStatement extends Node {
     public Node returnValue;
 

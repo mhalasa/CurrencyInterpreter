@@ -1,19 +1,8 @@
 package structures;
 
-/**
- * Created by wprzecho on 30.05.16.
- */
 public class Variable extends Node {
-    public String name;
-    public double value;
-
-    public Variable() {
-    }
-
-    public Variable(String name, int value) {
-        this.name = name;
-        this.value = value;
-    }
+    private String name;
+    private double value;
 
     public void setName(final String name) {
         this.name = name;

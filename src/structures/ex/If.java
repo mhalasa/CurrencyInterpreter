@@ -1,10 +1,6 @@
 package structures.ex;
 
-import java.util.Map;
 
-/**
- * Created by wprzecho on 11.06.16.
- */
 public class If extends Instruction {
     private ConditionEx condition;
     private Block trueBlock;
@@ -34,13 +30,4 @@ public class If extends Instruction {
         this.elseBlock = elseBlock;
     }
 
-    @Override
-    public LiteralEx execute(final Scope scope, final Map<String, FunctionEx> functions) {
-        if (condition.execute(scope, functions).isTruthy()) {
-            return trueBlock.execute(scope, functions);
-        } else if (elseBlock != null) {
-            return elseBlock.execute(scope, functions);
-        }
-        return null;
-    }
 }

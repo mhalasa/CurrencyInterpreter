@@ -6,7 +6,7 @@ import java.io.*;
 public class Source {
 
     private Position position;
-    private FileReader inputStream;
+    private Reader inputStream;
 
     public Source(String fileName){
         position = new Position(1, 0);
@@ -15,6 +15,11 @@ public class Source {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    public Source(Reader stringReader){
+        position = new Position(1, 0);
+        inputStream = stringReader;
     }
 
 

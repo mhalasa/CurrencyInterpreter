@@ -13,6 +13,6 @@ public class PrintStatement extends Node{
 
     @Override
     public Type getType() {
-        return null;
+        return Type.PrintStatement;
     }
 }

@@ -1,18 +1,16 @@
 package structures;
 
-/**
- * Created by wprzecho on 30.05.16.
- */
-public class AssingStatement extends Node {
-    public Variable variable;
-    public Node value;
 
-    public AssingStatement() {
+public class AssingStatement extends Node {
+    private Variable variable;
+    private Node value;
+
+    public Variable getVariable() {
+        return variable;
     }
 
-    public AssingStatement(Variable variable, Node value) {
-        this.variable = variable;
-        this.value = value;
+    public Node getValue() {
+        return value;
     }
 
     public void setVariable(final Variable variable) {
@@ -24,7 +22,7 @@ public class AssingStatement extends Node {
     }
 
     public Type getType() {
-        return Type.Assignment;
+        return Type.AssignStatement;
     }
 
 }

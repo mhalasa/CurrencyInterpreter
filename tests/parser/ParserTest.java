@@ -1,35 +1,30 @@
 package parser;
 
 import lexer.Lexer;
+import lexer.Source;
 import org.junit.Assert;
 import org.junit.Test;
 import structures.*;
 
-import javax.xml.bind.ValidationEvent;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
+
+import java.io.Reader;
+import java.io.StringReader;
 
 
 public class ParserTest {
 
-    Lexer lexer;
     Parser parser;
 
     private void setSource(String string){
-        try {
-            PrintWriter printWriter = new PrintWriter("test");
-            printWriter.println(string);
-            printWriter.close();
-        }catch (FileNotFoundException e){
-            e.printStackTrace();
-        }
-        lexer = new Lexer("test");
+        Reader reader = new StringReader(string);
+        Source source = new Source(reader);
+        Lexer lexer = new Lexer(source);
         parser = new Parser(lexer);
     }
 
     @Test
    public void assignmentTest() {
-        setSource("function fun() {x=5;y=x;}");
+        setSource("function fun() {x=5.23; y=x;}");
 
         Program program = null;
         try {
@@ -39,10 +34,14 @@ public class ParserTest {
         }
         Function function = program.functions.get(0);
         Assert.assertEquals(2, function.statementBlock.instructions.size());
+        Assert.assertEquals(Node.Type.AssignStatement, function.getStatementBlock().getInstructions().get(0).getType());
 
-        Variable variable = new Variable("x", 0);
-        Literal literal = new Literal(5);
-        AssingStatement assingStatement = new AssingStatement(variable, literal);
+        AssingStatement assingStatement = (AssingStatement) function.getStatementBlock().getInstructions().get(0);
+        Assert.assertEquals("x", assingStatement.getVariable().getName());
     }
 
+    @Test
+    public void Test() {
+
+    }
 }

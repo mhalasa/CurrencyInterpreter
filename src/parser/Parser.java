@@ -13,28 +13,17 @@ import java.util.List;
 public class Parser {
     private Lexer lexer;
     private Program program;
-    private Token previousToken;
+    private Token bufferedToken;
 
     public Parser(final Lexer lexer) {
         this.lexer = lexer;
     }
 
-    public Program parse() throws Exception {
-        resetBufferedToken();
-        program = new Program();
-        program.setConfigBlock(parseConfigBlock());
-        Function lastParsedFunction;
-        while ((lastParsedFunction = parseFunction()) != null) {
-            program.addFunction(lastParsedFunction);
-        }
-        return program;
-    }
-
     private Token accept(final TokenType... tokenTypes) throws Exception {
         Token token;
-        if (isBufferedToken()) {
-            token = previousToken;
-            resetBufferedToken();
+        if (bufferedToken != null) {
+            token = bufferedToken;
+            bufferedToken = null;
         } else {
             token = lexer.getNextToken();
         }
@@ -55,23 +44,11 @@ public class Parser {
         }
     }
 
-    private void resetBufferedToken() {
-        previousToken = null;
-    }
-
-    private boolean isBufferedToken() {
-        return previousToken != null;
-    }
-
-    private Token getBufferedToken() {
-        return previousToken;
-    }
-
-    private boolean checkNextToken(final TokenType... tokenTypes) throws Exception {
-        if (!isBufferedToken()) {
-            previousToken = lexer.getNextToken();
+    private boolean checkNextToken(final TokenType... tokenTypes) {
+        if (bufferedToken == null) {
+            bufferedToken = lexer.getNextToken();
         }
-        return isAcceptable(previousToken, tokenTypes);
+        return isAcceptable(bufferedToken, tokenTypes);
     }
 
     private boolean isAcceptable(final Token token, TokenType... tokenTypes) {
@@ -81,6 +58,17 @@ public class Parser {
             }
         }
         return false;
+    }
+
+    public Program parse() throws Exception {
+        bufferedToken = null;
+        program = new Program();
+        program.setConfigBlock(parseConfigBlock());
+        Function function;
+        while ((function = parseFunction()) != null) {
+            program.addFunction(function);
+        }
+        return program;
     }
 
     private ConfigBlock parseConfigBlock() throws Exception{
@@ -104,8 +92,8 @@ public class Parser {
 
     private Function parseFunction() throws Exception {
         System.out.println("Start processing function");
-        final Function function = new Function();
-        final Token startToken = accept(TokenType.FUNCTION, TokenType.END_OF_FILE);
+        Function function = new Function();
+        Token startToken = accept(TokenType.FUNCTION, TokenType.END_OF_FILE);
         if (startToken.getTokenType() != TokenType.FUNCTION)
             return null;
 
@@ -137,13 +125,10 @@ public class Parser {
 
     private StatementBlock parseStatementBlock() throws Exception {
         System.out.println("Parsing statement block...");
-        final StatementBlock block = new StatementBlock();
+        StatementBlock block = new StatementBlock();
         accept(TokenType.BRACKET_OPEN);
-        while (true) {
-            if (!checkNextToken(TokenType.IF, TokenType.WHILE, TokenType.RETURN, TokenType.ID)) {
-                break;
-            }
-            final Token tempToken = getBufferedToken();
+        while (checkNextToken(TokenType.IF, TokenType.WHILE, TokenType.RETURN, TokenType.ID)) {
+            Token tempToken = bufferedToken;
             switch (tempToken.getTokenType()) {
                 case IF:
                     block.addInstruction(parseIfStatement());
@@ -168,20 +153,21 @@ public class Parser {
         return block;
     }
 
-    private Node parsePrintStatement() throws Exception{
+    private Node parsePrintStatement() throws Exception {
         PrintStatement printStatement = new PrintStatement();
         accept(TokenType.PRINT);
         accept(TokenType.PARENT_OPEN);
-            Token token = accept(TokenType.ID);
-            Variable parameter = new Variable();
-            parameter.setName(token.getstringValue());
-            printStatement.addParameter(parameter);
-            return printStatement;
+        Token token = accept(TokenType.ID);
+        Variable parameter = new Variable();
+        parameter.setName(token.getstringValue());
+        printStatement.addParameter(parameter);
+        accept(TokenType.PARENT_CLOSE);
+        return printStatement;
     }
 
     private Node parseAssignStatementtOrFunnCall() throws Exception {
         System.out.println("Parsing assignment or funn call...");
-        final Token tempToken = accept(TokenType.ID);
+        Token tempToken = accept(TokenType.ID);
         Node instruction = parseFunnCall(tempToken.getstringValue());
         if (instruction == null) {
             final AssingStatement assingStatement = new AssingStatement();
@@ -202,7 +188,7 @@ public class Parser {
             System.out.println("It is not a funn call");
             return null;
         }
-        final FunCall funnCall = new FunCall();
+        FunCall funnCall = new FunCall();
         funnCall.setName(funnName);
         accept(TokenType.PARENT_OPEN);
         if (checkNextToken(TokenType.PARENT_CLOSE)) {
@@ -221,16 +207,14 @@ public class Parser {
             }
         }
         return funnCall;
-
-
     }
 
     private Node parseExpression() throws Exception {
         System.out.println("Parsing expression...");
-        final Expression expression = new Expression();
+        Expression expression = new Expression();
         expression.addOperand(parseMultiplicativeExpression());
         while (checkNextToken(TokenType.ADD, TokenType.SUB)) {
-            final Token token = accept(TokenType.ADD, TokenType.SUB);
+            Token token = accept(TokenType.ADD, TokenType.SUB);
             expression.addOperator(token.getTokenType());
             expression.addOperand(parseMultiplicativeExpression());
         }
@@ -239,10 +223,10 @@ public class Parser {
 
     private Node parseMultiplicativeExpression() throws Exception {
         System.out.println("Parsing multiplicative expression...");
-        final Expression expression = new Expression();
+        Expression expression = new Expression();
         expression.addOperand(parseConvertExpression());
         while (checkNextToken(TokenType.MUL, TokenType.DIV)) {
-            final Token token = accept(TokenType.MUL, TokenType.DIV);
+            Token token = accept(TokenType.MUL, TokenType.DIV);
             expression.addOperator(token.getTokenType());
             expression.addOperand(parseConvertExpression());
         }
@@ -251,7 +235,7 @@ public class Parser {
 
     private Node parseConvertExpression() throws Exception{
         System.out.println("Parsing converting expression...");
-        final ConvertExpression convertExpression = new ConvertExpression();
+        ConvertExpression convertExpression = new ConvertExpression();
         convertExpression.setOperand(parsePrimaryExpression());
         convertExpression.setCurrencies(parseCurrencies());
         return convertExpression;
@@ -284,7 +268,7 @@ public class Parser {
 
     private Node parseVariableOrFunCall() throws Exception {
         System.out.println("Parsing variable or funn call...");
-        final Token tempToken = accept(TokenType.ID);
+        Token tempToken = accept(TokenType.ID);
         Node instruction = parseFunnCall(tempToken.getstringValue());
         if (instruction == null) {
             Variable variable = new Variable();
@@ -296,7 +280,7 @@ public class Parser {
 
     private Node parseReturnStatement() throws Exception {
         System.out.println("Parsing return...");
-        final ReturnStatement returnStatement = new ReturnStatement();
+        ReturnStatement returnStatement = new ReturnStatement();
         accept(TokenType.RETURN);
         returnStatement.setReturnValue(parseExpression());
         accept(TokenType.SEMICOLON);
@@ -305,7 +289,7 @@ public class Parser {
 
     private Node parseWhileStatement() throws Exception {
         System.out.println("Parsing whileStatement...");
-        final WhileStatement whileStatement = new WhileStatement();
+        WhileStatement whileStatement = new WhileStatement();
         accept(TokenType.WHILE);
         accept(TokenType.PARENT_OPEN);
         whileStatement.setCondition(parseCondition());
@@ -316,7 +300,7 @@ public class Parser {
 
     private Node parseIfStatement() throws Exception {
         System.out.println("Parsing if statement...");
-        final IfStatement ifStatement = new IfStatement();
+        IfStatement ifStatement = new IfStatement();
         accept(TokenType.IF);
         accept(TokenType.PARENT_OPEN);
         ifStatement.setCondition(parseCondition());
@@ -331,7 +315,7 @@ public class Parser {
 
     private Condition parseCondition() throws Exception {
         System.out.println("Parsing condition...");
-        final Condition condition = new Condition();
+        Condition condition = new Condition();
         condition.addOperand(parseAndCondition());
         while (checkNextToken(TokenType.OR)) {
             accept(TokenType.OR);
@@ -343,7 +327,7 @@ public class Parser {
 
     private Node parseAndCondition() throws Exception {
         System.out.println("Parsing and condition...");
-        final Condition andCondition = new Condition();
+        Condition andCondition = new Condition();
         andCondition.addOperand(parseRelationalCondition());
         while (checkNextToken(TokenType.AND)) {
             accept(TokenType.AND);
@@ -355,7 +339,7 @@ public class Parser {
 
     private Node parseRelationalCondition() throws Exception {
         System.out.println("Parsing relational condition...");
-        final Condition relationalCondition = new Condition();
+        Condition relationalCondition = new Condition();
         relationalCondition.addOperand(parsePrimaryCondition());
         while (checkNextToken(TokenType.LOWER, TokenType.LOWER_EQUALS, TokenType.GREATER,
                               TokenType.GREATER_EQUALS,TokenType.EQUALS, TokenType.NOT_EQUALS)) {
@@ -369,7 +353,7 @@ public class Parser {
 
     private Node parsePrimaryCondition() throws Exception {
         System.out.println("Parsing primary condition...");
-        final Condition primaryCondition = new Condition();
+        Condition primaryCondition = new Condition();
         if (checkNextToken(TokenType.UNARY)) {
             accept(TokenType.UNARY);
             primaryCondition.setNegated(true);
@@ -379,7 +363,7 @@ public class Parser {
             primaryCondition.addOperand(parseCondition());
             accept(TokenType.PARENT_CLOSE);
         } else if (checkNextToken(TokenType.ID)) {
-            primaryCondition.addOperand(parseVariable(null));
+            primaryCondition.addOperand(parseVariable());
         } else {
             primaryCondition.addOperand(parseLiteral());
         }
@@ -387,8 +371,8 @@ public class Parser {
     }
 
     private Literal parseLiteral() throws Exception {
-        System.out.println("Parsing variable...");
-        final Literal literal = new Literal();
+        System.out.println("Parsing literal...");
+        Literal literal = new Literal();
         boolean isNegative = false;
         if (checkNextToken(TokenType.SUB)) {
             accept(TokenType.SUB);
@@ -403,15 +387,12 @@ public class Parser {
         return literal;
     }
 
-    private Variable parseVariable(final Token firstToken) throws Exception {
-        System.out.println("Parsing literal...");
-        final Variable variable = new Variable();
-        if (firstToken == null) {
-            final Token token = accept(TokenType.ID);
-            variable.setName(token.getstringValue());
-        } else {
-            variable.setName(firstToken.getstringValue());
-        }
+    private Variable parseVariable() throws Exception {
+        System.out.println("Parsing variable...");
+        Variable variable = new Variable();
+        Token token = accept(TokenType.ID);
+        variable.setName(token.getstringValue());
+
         return variable;
     }
 }
