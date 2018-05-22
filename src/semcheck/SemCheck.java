@@ -16,8 +16,8 @@ public class SemCheck {
         scanDefinedFunctions();
         checkMain();
 
-        for (Function function : program.getFunctions()) {
-            checkFunction(function);
+        for (Map.Entry<String, Function> function : program.getFunctions().entrySet()) {
+            checkFunction(function.getValue());
         }
     }
 
@@ -26,14 +26,14 @@ public class SemCheck {
         if (!definedFunctions.containsKey("main")) {
             throw new Exception("No \"main\" function defined");
         }
-        if (definedFunctions.get("main").getScope().getVariables().size() != 0) {
+        if (definedFunctions.get("main").getStatementBlock().getScope().getVariables().size() != 0) {
             throw new Exception("\"main\" function should not have parameters");
         }
     }
 
     private void scanDefinedFunctions() throws Exception {
-        for (Function function : program.getFunctions()) {
-            scanDefinedFunction(function);
+        for (Map.Entry<String, Function> function : program.getFunctions().entrySet()) {
+            scanDefinedFunction(function.getValue());
         }
     }
 
@@ -41,10 +41,10 @@ public class SemCheck {
         if (definedFunctions.containsKey(function.getName())) {
             throw new Exception("Redefined function: " + function.getName());
         }
-        Function functionEx = new Function();
-        functionEx.setName(function.getName());
+        Function fun = new Function();
+        fun.setName(function.getName());
         for (String parameter : function.getParameters()) {
-            if (!functionEx.getScope().addVariable(parameter)) {
+            if (!fun.getStatementBlock().getScope().addVariable(parameter)) {
                 throw new Exception(new StringBuilder()
                         .append("Dupicated parameter : ")
                         .append(parameter)
@@ -52,12 +52,12 @@ public class SemCheck {
                         .append(function.getName()).toString());
             }
         }
-        definedFunctions.put(function.getName(), functionEx);
+        definedFunctions.put(function.getName(), fun);
     }
 
     private void checkFunction(Function function) throws Exception {
-        Function functionEx = definedFunctions.get(function.getName());
-        checkBlock(functionEx.getScope(), function.getStatementBlock());
+        Function fun = definedFunctions.get(function.getName());
+        checkBlock(fun.getStatementBlock().getScope(), function.getStatementBlock());
     }
 
     private void checkBlock(Scope scope, StatementBlock statementBlock) throws Exception {
@@ -153,9 +153,9 @@ public class SemCheck {
             throw new Exception("Invalid arguments number for function print"
                     + ". Expected : 1" + " but found " + funCall.getArguments().size());
         } else if (!PrintStatement.equals(funCall.getType()) &&
-                function.getScope().getVariables().size() != funCall.getArguments().size()) {
+                function.getStatementBlock().getScope().getVariables().size() != funCall.getArguments().size()) {
             throw new Exception("Invalid arguments number for function " + funCall.getName()
-                    + ". Expected " + function.getScope().getVariables().size()
+                    + ". Expected " + function.getStatementBlock().getScope().getVariables().size()
                     + " but found " + funCall.getArguments().size());
         }
 

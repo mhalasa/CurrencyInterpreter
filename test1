@@ -4,11 +4,13 @@ eur 0.82
 
 function fun(a, b){
 	
-	i = 0;				
+	i = 0;
+	s = 3dol;
 	if (a > b){
 		while(i < 10){
 			a = a + 2*b - i;
 			i = i + 1;
+			g=4;
 		}
 		return a;		
 	}else{

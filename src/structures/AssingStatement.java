@@ -1,6 +1,8 @@
 package structures;
 
 
+import java.util.Map;
+
 public class AssingStatement extends Node {
     private Variable variable;
     private Node value;
@@ -23,6 +25,14 @@ public class AssingStatement extends Node {
 
     public Type getType() {
         return Type.AssignStatement;
+    }
+
+    public Literal execute(final Scope scope, final Map<String, Function> functions) {
+        Literal newVal = value.execute(scope, functions);
+        variable.setValue(newVal);
+        scope.setVariableValue(variable.getName(), newVal);
+
+        return newVal;
     }
 
 }

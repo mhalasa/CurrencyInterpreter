@@ -1,5 +1,7 @@
 package structures;
 
+import java.util.Map;
+
 public class Variable extends Node {
     private String name;
     private Literal value;
@@ -22,5 +24,9 @@ public class Variable extends Node {
 
     public String getName() {
         return name;
+    }
+
+    public Literal execute(final Scope scope, final Map<String, Function> functions) {
+        return  value;
     }
 }

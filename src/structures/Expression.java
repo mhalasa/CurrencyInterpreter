@@ -4,6 +4,7 @@ import token.TokenType;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 
 public class Expression extends Node {
@@ -28,5 +29,10 @@ public class Expression extends Node {
 
     public List<TokenType> getOperations() {
         return operations;
+    }
+
+    public Literal execute(final Scope scope, final Map<String, Function> functions) {
+        Literal value = new Literal();
+
     }
 }

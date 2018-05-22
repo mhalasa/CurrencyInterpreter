@@ -1,3 +1,4 @@
+import executor.Executor;
 import lexer.Lexer;
 import parser.Parser;
 import semcheck.SemCheck;
@@ -18,9 +19,12 @@ public class CurrencyInterpreter {
         Lexer lexer = new Lexer("test1");
         Parser parser = new Parser(lexer);
         SemCheck semCheck = new SemCheck();
+        Executor executor = new Executor();
+        Program program;
         try {
-            Program program = parser.parse();
+            program = parser.parse();
             semCheck.check(program);
+            executor.execute(program);
         } catch (Exception e) {
             e.printStackTrace();
             return;

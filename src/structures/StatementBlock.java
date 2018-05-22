@@ -3,6 +3,7 @@ package structures;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 public class StatementBlock extends Node {
     private Scope scope = new Scope();
@@ -27,4 +28,16 @@ public class StatementBlock extends Node {
     public Type getType() {
         return Type.StatementBlock;
     }
+
+    public Literal execute( Map<String, Function> functions) {
+        Literal result = null;
+        for (Node instruction : instructions) {
+            result = instruction.execute(this.scope, functions);
+            if (instruction instanceof ReturnStatement) {
+                return result;
+            }
+        }
+        return result;
+    }
+
 }

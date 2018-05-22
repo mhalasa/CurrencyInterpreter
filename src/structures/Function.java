@@ -1,13 +1,15 @@
 package structures;
 
+
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 
-public class Function extends StatementBlock{
+public class Function extends Node{
     private String name;
     private List<String> parameters = new LinkedList<>();
-    private StatementBlock statementBlock;
+    private StatementBlock statementBlock = new StatementBlock();
 
     public void setName(String name) {
         this.name = name;
@@ -31,10 +33,21 @@ public class Function extends StatementBlock{
 
     public StatementBlock getStatementBlock() {
         return statementBlock;
-    }
+        }
 
     @Override
     public Type getType() {
         return Type.Function;
+    }
+
+
+    public Literal execute(Scope scope, Map<String, Function> functions, List<Literal> arguments) {
+        int varIdx = 0;
+
+        for (Literal argument : arguments) {
+            statementBlock.getScope().setVariable(statementBlock.getScope().getVarName(varIdx), argument);
+        }
+
+        return statementBlock.execute(functions);
     }
 }
