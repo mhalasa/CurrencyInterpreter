@@ -21,7 +21,7 @@ function main(){
 	c = (i pln - 5 pln + 9 * 3dol ) pln;
 	e = fun(i,c);
 	g = c + e;
-	q = g*c;
+	q = 0;
 	if (i) {
 	    print(g);
 	}

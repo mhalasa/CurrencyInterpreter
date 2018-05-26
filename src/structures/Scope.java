@@ -41,14 +41,6 @@ public class Scope {
     }
 
     public void setVariableValue(String name, Literal value) {
-//        Literal variable = variables.get(name);
-//        if (variable != null) {
-//            variable = value;
-//        } else {
-//            variable = new Literal();
-//            variable = value;
-//            variables.put(name, variable);
-//        }
           variables.put(name, value);
     }
 

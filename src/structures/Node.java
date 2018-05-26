@@ -13,7 +13,6 @@ public abstract class Node implements Executable {
         IfStatement,
         ReturnStatement,
         StatementBlock,
-        Function,
         Literal,
         Variable,
         WhileStatement,

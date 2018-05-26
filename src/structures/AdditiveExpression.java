@@ -22,9 +22,6 @@ public class AdditiveExpression extends Node {
         return operands;
     }
 
-    public List<TokenType> getOperations() {
-        return operations;
-    }
 
     @Override
     public Type getType() {

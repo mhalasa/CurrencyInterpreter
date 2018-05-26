@@ -1,7 +1,6 @@
 package structures;
 
 
-import java.util.Map;
 
 public class AssingStatement extends Node {
     private Variable variable;
