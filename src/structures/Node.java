@@ -1,12 +1,14 @@
 package structures;
 
 
-public abstract class Node {
+public abstract class Node implements Executable {
     public enum Type {
         AssignStatement,
         FunCall,
         Condition,
-        Expression,
+        AdditiveExpression,
+        MultiplicativeExpression,
+        PrimaryExpression,
         ConvertExpression,
         IfStatement,
         ReturnStatement,

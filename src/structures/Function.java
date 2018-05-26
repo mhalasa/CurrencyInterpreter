@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public class Function extends Node{
+public class Function {
     private String name;
     private List<String> parameters = new LinkedList<>();
     private StatementBlock statementBlock = new StatementBlock();
@@ -35,19 +35,13 @@ public class Function extends Node{
         return statementBlock;
         }
 
-    @Override
-    public Type getType() {
-        return Type.Function;
-    }
-
-
-    public Literal execute(Scope scope, Map<String, Function> functions, List<Literal> arguments) {
+    public Literal execute(Program program, List<Literal> arguments ) {
         int varIdx = 0;
 
         for (Literal argument : arguments) {
-            statementBlock.getScope().setVariable(statementBlock.getScope().getVarName(varIdx), argument);
+            statementBlock.getScope().getParentScope().setVariableValue(statementBlock.getScope().getParentScope().getVarName(varIdx++), argument);
         }
 
-        return statementBlock.execute(functions);
+        return statementBlock.execute(statementBlock.getScope(), program);
     }
 }

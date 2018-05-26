@@ -27,12 +27,10 @@ public class AssingStatement extends Node {
         return Type.AssignStatement;
     }
 
-    public Literal execute(final Scope scope, final Map<String, Function> functions) {
-        Literal newVal = value.execute(scope, functions);
-        variable.setValue(newVal);
-        scope.setVariableValue(variable.getName(), newVal);
-
-        return newVal;
+    @Override
+    public Literal execute(Scope scope, Program program) {
+        scope.setVariableValue(variable.getName(), value.execute(scope, program));
+        return null;
     }
 
 }

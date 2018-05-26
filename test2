@@ -1,8 +1,31 @@
 defaultCurrency dol
-pln 4.33
+pln 4.00
+
+function fun(a,b) {
+   f = (14 pln - 5 pln + 9 * 3dol ) pln;
+   i = 0;
+   while (i < 10) {
+   x = i dol;
+   print(x);
+   i = i + 1;
+   d=6;
+   }
+
+
+   return f;
+}
+
 
 function main(){
-	i = 14.54;
-	c = (i - 5 pln - 9 ) dol;
-	return c dol;
+	i = 14;
+	c = (i pln - 5 pln + 9 * 3dol ) pln;
+	e = fun(i,c);
+	g = c + e;
+	q = g*c;
+	if (i) {
+	    print(g);
+	}
+	else {
+	    print(i);
+	}
 }

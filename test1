@@ -20,11 +20,11 @@ function fun(a, b){
 	}
 }
 
-
 function main()
 {
 	x =3 dol;
 	y = 3 eur;
 	z = 2 pln;
 	a = fun(y,z);
+	print(a);
 }

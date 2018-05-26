@@ -15,4 +15,17 @@ public class PrintStatement extends Node{
     public Type getType() {
         return Type.PrintStatement;
     }
+
+    @Override
+    public Literal execute(Scope scope, Program program) {
+        for (Variable var : parameters) {
+            System.out.print(scope.getString(var.getName()));
+        }
+        System.out.println();
+        return null;
+    }
+
+    public List<Variable> getParameters() {
+        return parameters;
+    }
 }

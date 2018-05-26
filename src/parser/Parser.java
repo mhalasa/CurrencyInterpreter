@@ -66,6 +66,8 @@ public class Parser {
         program.setConfigBlock(parseConfigBlock());
         Function function;
         while ((function = parseFunction()) != null) {
+            if (program.getFunctions().get(function.getName()) != null)
+                throw new Exception("Redefinition of function '" + function.getName() + "'");
             program.addFunction(function);
         }
         return program;
@@ -79,11 +81,12 @@ public class Parser {
 
         accept(TokenType.DEF_CURRENCY);
         configBlock.setDefaultCurrency(accept(TokenType.ID).getstringValue());
+        configBlock.addCurrency(configBlock.getDefaultCurrency(), 1);
         while (checkNextToken(TokenType.ID)){
             Token currency = accept(TokenType.ID);
             Token exchangeRate = accept(TokenType.NUMBER);
             if (configBlock.getExchangeRate().containsKey(currency.getstringValue())){
-                throw new Exception("Redefinifion of currency \"" + currency.getstringValue() + "\'");
+                throw new Exception("Redefinifion of currency '" + currency.getstringValue() + "'");
             }
             configBlock.addCurrency(currency.getstringValue(), exchangeRate.getDoubleValue());
         }
@@ -127,7 +130,7 @@ public class Parser {
         System.out.println("Parsing statement block...");
         StatementBlock block = new StatementBlock();
         accept(TokenType.BRACKET_OPEN);
-        while (checkNextToken(TokenType.IF, TokenType.WHILE, TokenType.RETURN, TokenType.ID)) {
+        while (checkNextToken(TokenType.IF, TokenType.WHILE, TokenType.RETURN, TokenType.ID, TokenType.PRINT)) {
             Token tempToken = bufferedToken;
             switch (tempToken.getTokenType()) {
                 case IF:
@@ -139,11 +142,11 @@ public class Parser {
                 case RETURN:
                     block.addInstruction(parseReturnStatement());
                     break;
-                case ID:
-                    block.addInstruction(parseAssignStatementtOrFunnCall());
-                    break;
                 case PRINT:
                     block.addInstruction(parsePrintStatement());
+                    break;
+                case ID:
+                    block.addInstruction(parseAssignStatementtOrFunnCall());
                     break;
                 default:
                     break;
@@ -162,6 +165,7 @@ public class Parser {
         parameter.setName(token.getstringValue());
         printStatement.addParameter(parameter);
         accept(TokenType.PARENT_CLOSE);
+        accept(TokenType.SEMICOLON);
         return printStatement;
     }
 
@@ -175,7 +179,7 @@ public class Parser {
             variable.setName(tempToken.getstringValue());
             assingStatement.setVariable(variable);
             accept(TokenType.ASSIGN);
-            assingStatement.setValue(parseExpression());
+            assingStatement.setValue(parseAdditiveExpression());
             instruction = assingStatement;
         }
         accept(TokenType.SEMICOLON);
@@ -195,7 +199,7 @@ public class Parser {
             accept(TokenType.PARENT_CLOSE);
         } else {
             while (true) {
-                funnCall.addArgument(parseExpression());
+                funnCall.addArgument(parseAdditiveExpression());
                 if (checkNextToken(TokenType.PARENT_CLOSE)) {
                     accept(TokenType.PARENT_CLOSE);
                     break;
@@ -209,9 +213,9 @@ public class Parser {
         return funnCall;
     }
 
-    private Node parseExpression() throws Exception {
+    private Node parseAdditiveExpression() throws Exception {
         System.out.println("Parsing expression...");
-        Expression expression = new Expression();
+        AdditiveExpression expression = new AdditiveExpression();
         expression.addOperand(parseMultiplicativeExpression());
         while (checkNextToken(TokenType.ADD, TokenType.SUB)) {
             Token token = accept(TokenType.ADD, TokenType.SUB);
@@ -221,9 +225,9 @@ public class Parser {
         return  expression;
     }
 
-    private Node parseMultiplicativeExpression() throws Exception {
+    private MuliplicativeExpression parseMultiplicativeExpression() throws Exception {
         System.out.println("Parsing multiplicative expression...");
-        Expression expression = new Expression();
+        MuliplicativeExpression expression = new MuliplicativeExpression();
         expression.addOperand(parseConvertExpression());
         while (checkNextToken(TokenType.MUL, TokenType.DIV)) {
             Token token = accept(TokenType.MUL, TokenType.DIV);
@@ -233,7 +237,7 @@ public class Parser {
         return expression;
     }
 
-    private Node parseConvertExpression() throws Exception{
+    private ConvertExpression parseConvertExpression() throws Exception{
         System.out.println("Parsing converting expression...");
         ConvertExpression convertExpression = new ConvertExpression();
         convertExpression.setOperand(parsePrimaryExpression());
@@ -250,20 +254,20 @@ public class Parser {
         return currencies;
     }
 
-    private Node parsePrimaryExpression() throws Exception {
+    private PrimaryExpression parsePrimaryExpression() throws Exception {
         System.out.println("Parsing primary expression...");
-        Node expression = null;
+        Node node = null;
         if (checkNextToken(TokenType.PARENT_OPEN)) {
             accept(TokenType.PARENT_OPEN);
-            expression = parseExpression();
+            node = parseAdditiveExpression();
             accept(TokenType.PARENT_CLOSE);
-            return expression;
+            return new PrimaryExpression(node);
         } else if (checkNextToken(TokenType.ID)) {
-            expression = parseVariableOrFunCall();
+            node = parseVariableOrFunCall();
         } else {
-            expression = parseLiteral();
+            node = parseLiteral();
         }
-        return expression;
+        return new PrimaryExpression(node);
     }
 
     private Node parseVariableOrFunCall() throws Exception {
@@ -282,7 +286,7 @@ public class Parser {
         System.out.println("Parsing return...");
         ReturnStatement returnStatement = new ReturnStatement();
         accept(TokenType.RETURN);
-        returnStatement.setReturnValue(parseExpression());
+        returnStatement.setReturnValue(parseAdditiveExpression());
         accept(TokenType.SEMICOLON);
         return returnStatement;
     }

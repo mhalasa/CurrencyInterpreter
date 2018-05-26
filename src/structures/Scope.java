@@ -41,14 +41,15 @@ public class Scope {
     }
 
     public void setVariableValue(String name, Literal value) {
-        Literal variable = variables.get(name);
-        if (variable != null) {
-            variable = value;
-        } else {
-            variable = new Literal();
-            variable = value;
-            variables.put(name, variable);
-        }
+//        Literal variable = variables.get(name);
+//        if (variable != null) {
+//            variable = value;
+//        } else {
+//            variable = new Literal();
+//            variable = value;
+//            variables.put(name, variable);
+//        }
+          variables.put(name, value);
     }
 
     public String getVarName(int index) {
@@ -57,5 +58,19 @@ public class Scope {
 
     public Scope getParentScope() {
         return parentScope;
+    }
+
+    public String getString(String name) {
+        if (variables.get((name)) != null)
+            return variables.get(name).getString();
+        else
+            return parentScope.getString(name);
+    }
+
+    public Literal getVariableValue(String name) {
+        if (variables.get(name) != null)
+            return variables.get(name);
+        else
+            return parentScope.getVariableValue(name);
     }
 }

@@ -19,4 +19,7 @@ public class ConfigBlock {
     public void addCurrency(String currency, double exchangeRate){
         this.exchangeRate.put(currency, exchangeRate);
     }
+    public double getExchangeRate(String currency) {
+         return exchangeRate.get(currency).doubleValue();
+    }
 }

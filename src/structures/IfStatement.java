@@ -36,4 +36,14 @@ public class IfStatement extends Node {
     public StatementBlock getElseBlock() {
         return elseBlock;
     }
+
+    @Override
+    public Literal execute(Scope scope, Program program) {
+        if (condition.execute(scope, program).isTruthy()) {
+            return trueBlock.execute(scope, program);
+        } else if (elseBlock != null) {
+            return elseBlock.execute(scope, program);
+        }
+        return null;
+    }
 }

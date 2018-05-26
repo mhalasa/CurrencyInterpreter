@@ -4,14 +4,14 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ConvertExpression extends Node{
-    private Node operand;
+    private PrimaryExpression operand;
     private List<String> currencies = new LinkedList<>();
 
-    public Node getOperand() {
+    public PrimaryExpression getOperand() {
         return operand;
     }
 
-    public void setOperand(Node operand) {
+    public void setOperand(PrimaryExpression operand) {
         this.operand = operand;
     }
 
@@ -26,5 +26,17 @@ public class ConvertExpression extends Node{
     @Override
     public Type getType() {
         return Type.ConvertExpression;
+    }
+
+    @Override
+    public Literal execute(Scope scope, Program program) {
+        Literal literal = operand.execute(scope, program);
+        for (String currency : currencies) {
+            if (literal.getCurrency() != null && !currency.equals(literal.getCurrency())) {
+                literal.setValue(literal.getValue() / program.getConfigBlock().getExchangeRate(currency));
+            }
+            literal.setCurrency(currency);
+        }
+        return literal;
     }
 }

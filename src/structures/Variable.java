@@ -29,4 +29,13 @@ public class Variable extends Node {
     public Literal execute(final Scope scope, final Map<String, Function> functions) {
         return  value;
     }
+
+    @Override
+    public Literal execute(Scope scope, Program program) {
+        return scope.getVariableValue(name);
+    }
+
+    public String getString() {
+        return value.getString();
+    }
 }

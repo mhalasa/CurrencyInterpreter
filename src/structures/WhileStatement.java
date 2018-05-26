@@ -24,4 +24,12 @@ public class WhileStatement extends Node {
     public StatementBlock getStatementBlock() {
         return statementBlock;
     }
+
+    @Override
+    public Literal execute(Scope scope, Program program) {
+        while (condition.execute(scope, program).isTruthy()) {
+            statementBlock.execute(scope, program);
+        }
+        return null;
+    }
 }

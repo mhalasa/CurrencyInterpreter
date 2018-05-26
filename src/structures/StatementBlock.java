@@ -29,15 +29,15 @@ public class StatementBlock extends Node {
         return Type.StatementBlock;
     }
 
-    public Literal execute( Map<String, Function> functions) {
+    @Override
+    public Literal execute(Scope scope, Program program) {
         Literal result = null;
         for (Node instruction : instructions) {
-            result = instruction.execute(this.scope, functions);
+            result = instruction.execute(scope, program);
             if (instruction instanceof ReturnStatement) {
                 return result;
             }
         }
         return result;
     }
-
 }

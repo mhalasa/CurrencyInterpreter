@@ -15,4 +15,9 @@ public class ReturnStatement extends Node {
     public Node getReturnValue() {
         return returnValue;
     }
+
+    @Override
+    public Literal execute(Scope scope, Program program) {
+        return returnValue.execute(scope, program);
+    }
 }

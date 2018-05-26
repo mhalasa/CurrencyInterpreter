@@ -38,9 +38,6 @@ public class SemCheck {
     }
 
     private void scanDefinedFunction(Function function) throws Exception {
-        if (definedFunctions.containsKey(function.getName())) {
-            throw new Exception("Redefined function: " + function.getName());
-        }
         Function fun = new Function();
         fun.setName(function.getName());
         for (String parameter : function.getParameters()) {
@@ -48,8 +45,8 @@ public class SemCheck {
                 throw new Exception(new StringBuilder()
                         .append("Dupicated parameter : ")
                         .append(parameter)
-                        .append("in function")
-                        .append(function.getName()).toString());
+                        .append(" in function '")
+                        .append(function.getName()).append("'").toString());
             }
         }
         definedFunctions.put(function.getName(), fun);
@@ -76,6 +73,10 @@ public class SemCheck {
                     FunCall call = (FunCall) instruction;
                     checkFunCall(statementBlock.getScope(), call);
                     break;
+                case PrintStatement:
+                    PrintStatement printStatement = (PrintStatement) instruction;
+                    checkPrintStatemnt(statementBlock.getScope(), printStatement);
+                    break;
                 case IfStatement:
                     IfStatement ifStatement = (IfStatement) instruction;
                     checkIfStatement(statementBlock.getScope(), ifStatement);
@@ -85,6 +86,12 @@ public class SemCheck {
                     checkWhileStatement(statementBlock.getScope(), whileStatement);
                     break;
             }
+        }
+    }
+
+    private void checkPrintStatemnt(Scope scope, PrintStatement printStatement) throws Exception {
+        for (Variable argument : printStatement.getParameters()) {
+            checkVariable(scope, argument);
         }
     }
 
@@ -98,16 +105,18 @@ public class SemCheck {
         if (!scope.hasVariable(variableName)) {
             scope.addVariable(variableName);
         }
-        checkExpression(scope, (Expression) assingStatement.getValue());
+        checkExpression(scope, (AdditiveExpression) assingStatement.getValue());
     }
 
-    private void checkExpression(Scope scope, Expression expr) throws Exception {
-        for (Node operand : expr.getOperands()) {
-            if (operand.getType() == Expression) {
-                checkExpression(scope, (Expression) operand);
-            } else if (operand.getType() == ConvertExpression) {
-                checkConvertExpression(scope, (ConvertExpression) operand);
-            }
+    private void checkExpression(Scope scope, AdditiveExpression expr) throws Exception {
+        for (MuliplicativeExpression operand : expr.getOperands()) {
+            checkMultiplicativeExpression(scope, operand);
+        }
+    }
+
+    private void checkMultiplicativeExpression(Scope scope, MuliplicativeExpression expr) throws Exception {
+        for (ConvertExpression operand : expr.getOperands()) {
+            checkConvertExpression(scope, operand);
         }
     }
 
@@ -122,15 +131,20 @@ public class SemCheck {
                 throw new Exception("Undefined currency \"" + currency + "\"");
             }
         }
-        Node operand = expr.getOperand();
-        if (operand.getType() == Literal) {
-            checkLiteral((Literal) operand);
-        } else if (operand.getType() == Expression){
-            checkExpression(scope, (Expression) operand);
-        } else if (operand.getType() == Variable) {
-            checkVariable(scope, (Variable) operand);
-        } else if (operand.getType() == FunCall){
-            checkFunCall(scope, (FunCall) operand);
+        PrimaryExpression operand = expr.getOperand();
+        checkPrimaryExpression(scope, operand);
+
+    }
+
+    private void checkPrimaryExpression(Scope scope, PrimaryExpression expr) throws Exception {
+        if (expr.getNodeType() == Literal) {
+            checkLiteral((Literal) expr.getNode());
+        } else if (expr.getNodeType() == AdditiveExpression){
+            checkExpression(scope, (AdditiveExpression) expr.getNode());
+        } else if (expr.getNodeType() == Variable) {
+            checkVariable(scope, (Variable) expr.getNode());
+        } else if (expr.getNodeType() == FunCall){
+            checkFunCall(scope, (FunCall) expr.getNode());
         }
     }
 
@@ -149,23 +163,19 @@ public class SemCheck {
             throw new Exception("Undefined function: " + funCall.getName());
         }
         Function function = definedFunctions.get(funCall.getName());
-        if ((PrintStatement.equals(funCall.getType()) && funCall.getArguments().size() > 1)) {
-            throw new Exception("Invalid arguments number for function print"
-                    + ". Expected : 1" + " but found " + funCall.getArguments().size());
-        } else if (!PrintStatement.equals(funCall.getType()) &&
-                function.getStatementBlock().getScope().getVariables().size() != funCall.getArguments().size()) {
+        if (function.getStatementBlock().getScope().getVariables().size() != funCall.getArguments().size()) {
             throw new Exception("Invalid arguments number for function " + funCall.getName()
                     + ". Expected " + function.getStatementBlock().getScope().getVariables().size()
                     + " but found " + funCall.getArguments().size());
         }
 
         for (Node argument : funCall.getArguments()) {
-            checkExpression(scope, (Expression) argument);
+            checkExpression(scope, (AdditiveExpression) argument);
         }
     }
 
     private void checkReturnStatement(Scope scope, ReturnStatement returnStatement) throws Exception {
-        checkExpression(scope, (Expression) returnStatement.getReturnValue());
+        checkExpression(scope, (AdditiveExpression) returnStatement.getReturnValue());
     }
 
     private void checkIfStatement(Scope scope, IfStatement ifStatement) throws Exception {

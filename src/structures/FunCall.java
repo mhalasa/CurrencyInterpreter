@@ -26,14 +26,16 @@ public class FunCall extends Node {
         return arguments;
     }
 
-    public Literal execute(final Scope scope, final Map<String, Function> functions) {
-        Function function = functions.get(name);
 
-        List<Literal> parameters = new ArrayList<>();
-        for (Node argument : arguments) {
-            parameters.add(argument.execute(scope, functions));
+    @Override
+    public Literal execute(Scope scope, Program program) {
+        Function function = program.getFunctions().get(name);
+
+        List<Literal> arguments = new LinkedList<>();
+        for (Node argument : this.arguments) {
+            arguments.add(argument.execute(scope, program));
         }
 
-        return function.execute(scope,functions, parameters);
+        return function.execute(program, arguments);
     }
 }
