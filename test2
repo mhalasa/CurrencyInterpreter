@@ -4,26 +4,21 @@ pln 4.00
 function fun(a,b) {
    f = (14 pln - 5 pln + 9 * 3dol ) pln;
    i = 0;
-   while (i < 10) {
    x = i dol;
    print(x);
    i = i + 1;
    d=6;
-   }
-
-
    return f;
 }
 
 
 function main(){
-	i = 14;
-	c = (i pln - 5 pln + 9 * 3dol ) pln;
-	e = fun(i,c);
-	g = c + e;
-	q = 0;
-	if (i) {
-	    print(g);
+	i = 1 pln;
+	j = 4 pln;
+	c = (14 pln - 5 pln + 9 * 3dol ) pln;
+	q = fun(i,j);
+	if ( i == j ) {
+	    print(c);
 	}
 	else {
 	    print(i);

@@ -8,21 +8,20 @@ function fun(a, b){
 	s = 3dol;
 	if (a > b){
 		while(i < 10){
-			a = a + 2*b - i;
+			a = a + 2*b + s ;
 			i = i + 1;
 			g=4;
 		}
 		return a;		
 	}else{
 		i = 14;
-		c = (i*b - 5 dol - a) pln;
+		c = (i*b - 5 dol + a) pln;
 		return c dol;			
 	}
 }
 
 function main()
 {
-	x =3 dol;
 	y = 3 eur;
 	z = 2 pln;
 	a = fun(y,z);

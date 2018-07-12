@@ -6,8 +6,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class MuliplicativeExpression extends Node {
-    private List<TokenType> operations = new LinkedList<>();
-    private List<ConvertExpression> operands = new LinkedList<>();
+    private List<TokenType> operations;
+    private List<ConvertExpression> operands;
+
+    public MuliplicativeExpression(List<TokenType> operations, List<ConvertExpression> operands) {
+        this.operations = operations;
+        this.operands = operands;
+    }
 
     public void addOperator(final TokenType operator) {
         operations.add(operator);

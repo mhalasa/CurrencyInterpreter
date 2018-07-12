@@ -6,8 +6,7 @@ import structures.Node;
 import token.Token;
 import token.TokenType;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 
 public class Parser {
@@ -74,35 +73,33 @@ public class Parser {
     }
 
     private ConfigBlock parseConfigBlock() throws Exception{
-        ConfigBlock configBlock = new ConfigBlock();
         if (!checkNextToken(TokenType.DEF_CURRENCY))
             return null;
 
         accept(TokenType.DEF_CURRENCY);
-        configBlock.setDefaultCurrency(accept(TokenType.ID).getstringValue());
-        configBlock.addCurrency(configBlock.getDefaultCurrency(), 1);
+        String defaultCurrency = accept(TokenType.ID).getstringValue();
+        Map<String, Double> exchangeRates = new HashMap<>();
+        exchangeRates.put(defaultCurrency, new Double(1));
         while (checkNextToken(TokenType.ID)){
             Token currency = accept(TokenType.ID);
             Token exchangeRate = accept(TokenType.NUMBER);
-            if (configBlock.getExchangeRate().containsKey(currency.getstringValue())){
+            if (exchangeRates.containsKey(currency.getstringValue())){
                 throw new Exception("Redefinifion of currency '" + currency.getstringValue() + "'");
             }
-            configBlock.addCurrency(currency.getstringValue(), exchangeRate.getDoubleValue());
+            exchangeRates.put(currency.getstringValue(), exchangeRate.getDoubleValue());
         }
-        return configBlock;
+        return new ConfigBlock(defaultCurrency, exchangeRates);
     }
 
     private Function parseFunction() throws Exception {
-        Function function = new Function();
         Token startToken = accept(TokenType.FUNCTION, TokenType.END_OF_FILE);
         if (startToken.getTokenType() != TokenType.FUNCTION)
             return null;
 
-        final Token functionName = accept(TokenType.ID);
-        function.setName(functionName.getstringValue());
-        function.setParameters(parseParameters());
-        function.setStatementBlock(parseStatementBlock());
-        return function;
+        String functionName = accept(TokenType.ID).getstringValue();
+        List<String> parameters = parseParameters();
+        StatementBlock statementBlock = parseStatementBlock();
+        return new Function(functionName, parameters, statementBlock);
     }
 
     private List<String> parseParameters() throws Exception {
@@ -125,45 +122,43 @@ public class Parser {
     }
 
     private StatementBlock parseStatementBlock() throws Exception {
-        StatementBlock block = new StatementBlock();
+        List<Node> instructions = new ArrayList<>();
         accept(TokenType.BRACKET_OPEN);
         while (checkNextToken(TokenType.IF, TokenType.WHILE, TokenType.RETURN, TokenType.ID, TokenType.PRINT)) {
             Token tempToken = bufferedToken;
             switch (tempToken.getTokenType()) {
                 case IF:
-                    block.addInstruction(parseIfStatement());
+                    instructions.add(parseIfStatement());
                     break;
                 case WHILE:
-                    block.addInstruction(parseWhileStatement());
+                    instructions.add(parseWhileStatement());
                     break;
                 case RETURN:
-                    block.addInstruction(parseReturnStatement());
+                    instructions.add(parseReturnStatement());
                     break;
                 case PRINT:
-                    block.addInstruction(parsePrintStatement());
+                    instructions.add(parsePrintStatement());
                     break;
                 case ID:
-                    block.addInstruction(parseAssignStatementtOrFunnCall());
+                    instructions.add(parseAssignStatementtOrFunnCall());
                     break;
                 default:
                     break;
             }
         }
         accept(TokenType.BRACKET_CLOSE);
-        return block;
+        return new StatementBlock(instructions);
     }
 
     private Node parsePrintStatement() throws Exception {
-        PrintStatement printStatement = new PrintStatement();
         accept(TokenType.PRINT);
         accept(TokenType.PARENT_OPEN);
         Token token = accept(TokenType.ID);
         Variable parameter = new Variable();
         parameter.setName(token.getstringValue());
-        printStatement.addParameter(parameter);
         accept(TokenType.PARENT_CLOSE);
         accept(TokenType.SEMICOLON);
-        return printStatement;
+        return new PrintStatement(parameter);
     }
 
     private Node parseAssignStatementtOrFunnCall() throws Exception {
@@ -182,18 +177,18 @@ public class Parser {
         return instruction;
     }
 
-    private Node parseFunnCall(final String funnName) throws Exception {
+    private Node parseFunnCall(String funnName) throws Exception {
         if (!checkNextToken(TokenType.PARENT_OPEN)) {
             return null;
         }
-        FunCall funnCall = new FunCall();
-        funnCall.setName(funnName);
+
+        List<Node> arguments = new ArrayList<>();
         accept(TokenType.PARENT_OPEN);
         if (checkNextToken(TokenType.PARENT_CLOSE)) {
             accept(TokenType.PARENT_CLOSE);
         } else {
             while (true) {
-                funnCall.addArgument(parseAdditiveExpression());
+                arguments.add(parseAdditiveExpression());
                 if (checkNextToken(TokenType.PARENT_CLOSE)) {
                     accept(TokenType.PARENT_CLOSE);
                     break;
@@ -204,29 +199,31 @@ public class Parser {
                 }
             }
         }
-        return funnCall;
+        return new FunCall(funnName, arguments);
     }
 
     private Node parseAdditiveExpression() throws Exception {
-        AdditiveExpression expression = new AdditiveExpression();
-        expression.addOperand(parseMultiplicativeExpression());
+        List<MuliplicativeExpression> operands = new ArrayList<>();
+        List<TokenType> operations = new ArrayList<>();
+        operands.add(parseMultiplicativeExpression());
         while (checkNextToken(TokenType.ADD, TokenType.SUB)) {
             Token token = accept(TokenType.ADD, TokenType.SUB);
-            expression.addOperator(token.getTokenType());
-            expression.addOperand(parseMultiplicativeExpression());
+            operations.add(token.getTokenType());
+            operands.add(parseMultiplicativeExpression());
         }
-        return  expression;
+        return  new AdditiveExpression(operations, operands);
     }
 
     private MuliplicativeExpression parseMultiplicativeExpression() throws Exception {
-        MuliplicativeExpression expression = new MuliplicativeExpression();
-        expression.addOperand(parseConvertExpression());
+        List<ConvertExpression> operands = new ArrayList<>();
+        List<TokenType> operations = new ArrayList<>();
+        operands.add(parseConvertExpression());
         while (checkNextToken(TokenType.MUL, TokenType.DIV)) {
             Token token = accept(TokenType.MUL, TokenType.DIV);
-            expression.addOperator(token.getTokenType());
-            expression.addOperand(parseConvertExpression());
+            operations.add(token.getTokenType());
+            operands.add(parseConvertExpression());
         }
-        return expression;
+        return new MuliplicativeExpression(operations, operands);
     }
 
     private ConvertExpression parseConvertExpression() throws Exception{
@@ -272,35 +269,33 @@ public class Parser {
     }
 
     private Node parseReturnStatement() throws Exception {
-        ReturnStatement returnStatement = new ReturnStatement();
         accept(TokenType.RETURN);
-        returnStatement.setReturnValue(parseAdditiveExpression());
+        Node returnValue = parseAdditiveExpression();
         accept(TokenType.SEMICOLON);
-        return returnStatement;
+        return new ReturnStatement(returnValue);
     }
 
     private Node parseWhileStatement() throws Exception {
-        WhileStatement whileStatement = new WhileStatement();
         accept(TokenType.WHILE);
         accept(TokenType.PARENT_OPEN);
-        whileStatement.setCondition(parseCondition());
+        Condition condition = parseCondition();
         accept(TokenType.PARENT_CLOSE);
-        whileStatement.setStatementBlock(parseStatementBlock());
-        return whileStatement;
+        StatementBlock statementBlock = parseStatementBlock();
+        return new WhileStatement(condition, statementBlock);
     }
 
     private Node parseIfStatement() throws Exception {
-        IfStatement ifStatement = new IfStatement();
         accept(TokenType.IF);
         accept(TokenType.PARENT_OPEN);
-        ifStatement.setCondition(parseCondition());
+        Condition condition = parseCondition();
         accept(TokenType.PARENT_CLOSE);
-        ifStatement.setTrueBlock(parseStatementBlock());
+        StatementBlock trueBlock = parseStatementBlock();
+        StatementBlock elseBlock = null;
         if (checkNextToken(TokenType.ELSE)) {
             accept(TokenType.ELSE);
-            ifStatement.setElseBlock(parseStatementBlock());
+            elseBlock = parseStatementBlock();
         }
-        return ifStatement;
+        return new IfStatement(condition, trueBlock, elseBlock);
     }
 
     private Condition parseCondition() throws Exception {
@@ -368,7 +363,7 @@ public class Parser {
         if (isNegative)
             value *= -1;
         literal.setValue(value);
-
+        literal.setPosition(token.getPosition());
         return literal;
     }
 

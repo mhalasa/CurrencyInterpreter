@@ -4,6 +4,10 @@ package structures;
 public class ReturnStatement extends Node {
     private Node returnValue;
 
+    public ReturnStatement(Node returnValue) {
+        this.returnValue = returnValue;
+    }
+
     public void setReturnValue(Node value) {
         this.returnValue = value;
     }

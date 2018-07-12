@@ -1,9 +1,11 @@
 package structures;
 
+import lexer.Position;
+
 public class Literal extends Node {
     private double value;
     private String currency;
-    private boolean isBool = false;
+    private Position position;
 
     public Literal() {
         value = 0;
@@ -66,7 +68,7 @@ public class Literal extends Node {
     public Literal multi(final Literal sec) {
 
         if (currency != null && sec.getCurrency() != null) {
-            System.err.println("Cannot multiply currency by currency");
+            System.err.println("Error: Cannot multiply currency by currency in line: " + sec.getPosition().toString());
             System.exit(1);
         }else {
             String resultCurrency = currency == null ? sec.getCurrency() : currency;
@@ -78,10 +80,14 @@ public class Literal extends Node {
     public Literal div(final Literal sec) {
         if (sec.getCurrency() == null && sec.getValue() != 0) {
             return new Literal(value / sec.getValue(), currency);
+        } else if (sec.getValue() == 0){
+            System.err.println("Error: Cannot divide by 0 in line: " + sec.getPosition().toString());
+            System.exit(1);
         } else {
-          //Exception
-          return new Literal();
+            System.err.println("Error: Cannot divide by currency in line: " + sec.getPosition().toString());
+            System.exit(1);
         }
+        return null;
     }
 
     @Override
@@ -91,21 +97,33 @@ public class Literal extends Node {
 
     public String getString() {
         if (currency != null) {
-            return value + " " + currency;
+            return round(value, 2) + " " + currency;
         } else {
-            return String.valueOf(value);
+            return String.valueOf(round(value, 2));
         }
     }
 
-    public void setIsBool(boolean isBool) {
-        this.isBool = isBool;
-    }
-
-    public boolean isBool() {
-        return isBool;
-    }
 
     public boolean isTruthy() {
-        return value == 1;
+        return value != 0;
     }
+
+    public Position getPosition() {
+        return position;
+    }
+
+    public void setPosition(Position position) {
+        this.position = position;
+    }
+
+    private double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        long factor = (long) Math.pow(10, places);
+        value = value * factor;
+        long tmp = Math.round(value);
+        return (double) tmp / factor;
+    }
+
 }
+

@@ -1,12 +1,23 @@
 package structures;
 
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 public class StatementBlock extends Node {
-    private Scope scope = new Scope();
-    private List<Node> instructions = new LinkedList<>();
+    private Scope scope;
+    private List<Node> instructions;
+
+    public StatementBlock() {
+        instructions = new ArrayList<>();
+        scope = new Scope();
+    }
+
+    public StatementBlock(List<Node> instructions) {
+        this.instructions = instructions;
+        scope = new Scope();
+    }
 
     public Scope getScope() {
         return scope;

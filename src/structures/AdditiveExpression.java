@@ -7,8 +7,13 @@ import java.util.List;
 
 
 public class AdditiveExpression extends Node {
-    private List<TokenType> operations = new LinkedList<>();
-    private List<MuliplicativeExpression> operands = new LinkedList<>();
+    private List<TokenType> operations;
+    private List<MuliplicativeExpression> operands;
+
+    public AdditiveExpression(List<TokenType> operations, List<MuliplicativeExpression> operands) {
+        this.operations = operations;
+        this.operands = operands;
+    }
 
     public void addOperator(final TokenType operator) {
         operations.add(operator);

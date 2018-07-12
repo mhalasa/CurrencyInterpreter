@@ -5,6 +5,11 @@ public class WhileStatement extends Node {
     private Condition condition;
     private StatementBlock statementBlock;
 
+    public WhileStatement(Condition condition, StatementBlock statementBlock) {
+        this.condition = condition;
+        this.statementBlock = statementBlock;
+    }
+
     public void setCondition(Condition condition) {
         this.condition = condition;
     }

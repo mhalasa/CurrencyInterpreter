@@ -90,9 +90,7 @@ public class SemCheck {
     }
 
     private void checkPrintStatemnt(Scope scope, PrintStatement printStatement) throws Exception {
-        for (Variable argument : printStatement.getParameters()) {
-            checkVariable(scope, argument);
-        }
+        checkVariable(scope, printStatement.getParameter());
     }
 
     private void checkWhileStatement(Scope scope, WhileStatement whileStatement) throws Exception {

@@ -3,7 +3,13 @@ package structures;
 public class IfStatement extends Node {
     private Condition condition;
     private StatementBlock trueBlock;
-    private StatementBlock elseBlock = null;
+    private StatementBlock elseBlock;
+
+    public IfStatement(Condition condition, StatementBlock trueBlock, StatementBlock elseBlock) {
+        this.condition = condition;
+        this.trueBlock = trueBlock;
+        this.elseBlock = elseBlock;
+    }
 
     public void setCondition(Condition cond) {
         this.condition = cond;

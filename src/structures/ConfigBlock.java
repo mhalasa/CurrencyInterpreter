@@ -5,7 +5,12 @@ import java.util.Map;
 
 public class ConfigBlock {
     private String defaultCurrency;
-    private Map<String, Double> exchangeRate = new HashMap<>();
+    private Map<String, Double> exchangeRate;
+
+    public ConfigBlock(String defaultCurrency, Map<String, Double> exchangeRate) {
+        this.defaultCurrency = defaultCurrency;
+        this.exchangeRate = exchangeRate;
+    }
 
     public String getDefaultCurrency() {
         return defaultCurrency;

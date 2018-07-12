@@ -1,14 +1,15 @@
 package structures;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class PrintStatement extends Node{
-    private List<Variable> parameters = new ArrayList<>();
+    private Variable parameter;
 
-    public void addParameter(Variable variable){
-        parameters.add(variable);
+    public PrintStatement(Variable parameter) {
+        this.parameter = parameter;
+    }
+
+    public Variable getParameter() {
+        return parameter;
     }
 
     @Override
@@ -18,14 +19,8 @@ public class PrintStatement extends Node{
 
     @Override
     public Literal execute(Scope scope, Program program) {
-        for (Variable var : parameters) {
-            System.out.print(scope.getString(var.getName()));
-        }
+        System.out.print(scope.getString(parameter.getName()));
         System.out.println();
         return null;
-    }
-
-    public List<Variable> getParameters() {
-        return parameters;
     }
 }

@@ -1,14 +1,26 @@
 package structures;
 
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
 
 public class Function {
     private String name;
-    private List<String> parameters = new LinkedList<>();
-    private StatementBlock statementBlock = new StatementBlock();
+    private List<String> parameters;
+    private StatementBlock statementBlock;
+
+    public Function() {
+        parameters = new ArrayList<>();
+        statementBlock = new StatementBlock();
+    }
+
+    public Function(String name, List<String> parameters, StatementBlock statementBlock) {
+        this.name = name;
+        this.parameters = parameters;
+        this.statementBlock = statementBlock;
+    }
 
     public void setName(String name) {
         this.name = name;

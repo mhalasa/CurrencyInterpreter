@@ -4,6 +4,7 @@ import token.TokenType;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.BiPredicate;
 
 
 public class Condition extends Node {
@@ -41,8 +42,7 @@ public class Condition extends Node {
 
     @Override
     public Literal execute(Scope scope, Program program) {
-        final Literal result = new Literal();
-        result.setIsBool(true);
+        Literal result = new Literal();
         switch (operator) {
             case UNDEFINED:
                 if (!isNegated) {
@@ -67,55 +67,76 @@ public class Condition extends Node {
                         return result;
                     }
                 }
-                result.setValue(0);
+                result.setValue(1);
                 return result;
             case EQUALS:
-                Literal left = operands.get(0).execute(scope, program);
-                Literal right = operands.get(1).execute(scope, program);
-                if (left.isBool() && right.isBool()) {
-                    result.setValue(left.isTruthy() == right.isTruthy() ? 1 : 0);
-                } else if (!left.isBool() && !right.isBool()) {
-                    result.setValue(left.getValue() == right.getValue() ? 1 : 0);
-                }
+                result = compareLiterals(scope, program, Condition::isEquals);
                 break;
             case NOT_EQUALS:
-                left = operands.get(0).execute(scope, program);
-                right = operands.get(1).execute(scope, program);
-                if (left.isBool() && right.isBool()) {
-                    result.setValue(left.isTruthy() != right.isTruthy() ? 1 : 0);
-                } else if (!left.isBool() && !right.isBool()) {
-                    result.setValue(left.getValue() != right.getValue() ? 1 : 0);
-                }
+                result = compareLiterals(scope, program, Condition::isNotEqual);
                 break;
             case LOWER:
-                left = operands.get(0).execute(scope, program);
-                right = operands.get(1).execute(scope, program);
-                if (!left.isBool() && !right.isBool()) {
-                    result.setValue(left.getValue() < right.getValue() ? 1 : 0);
-                }
+                result = compareLiterals(scope, program, Condition::isLower);
                 break;
             case LOWER_EQUALS:
-                left = operands.get(0).execute(scope, program);
-                right = operands.get(1).execute(scope, program);
-                if (!left.isBool() && !right.isBool()) {
-                    result.setValue(left.getValue() <= right.getValue() ? 1 : 0);
-                }
+                result = compareLiterals(scope, program, Condition::isLowerOrEqual);
                 break;
             case GREATER:
-                left = operands.get(0).execute(scope, program);
-                right = operands.get(1).execute(scope, program);
-                if (!left.isBool() && !right.isBool()) {
-                    result.setValue(left.getValue() > right.getValue() ? 1 : 0);
-                }
+                result = compareLiterals(scope, program, Condition::isGrater);
                 break;
             case GREATER_EQUALS:
-                left = operands.get(0).execute(scope, program);
-                right = operands.get(1).execute(scope, program);
-                if (!left.isBool() && !right.isBool()) {
-                    result.setValue(left.getValue() >= right.getValue() ? 1 : 0);
-                }
+                result = compareLiterals(scope, program, Condition::isGraterOrEqual);
                 break;
         }
         return result;
+    }
+
+    private Literal compareLiterals(Scope scope, Program program, BiPredicate<Double, Double> p) {
+        Literal left = operands.get(0).execute(scope, program);
+        Literal right = operands.get(1).execute(scope, program);
+        Literal result = new Literal();
+        if (left.getCurrency() == null && right.getCurrency() == null) {
+            result.setValue( p.test(left.getValue(), right.getValue()) ? 1 : 0);
+        }
+        else if ((left.getCurrency() != null && right.getCurrency() == null) ||
+                (left.getCurrency() == null && right.getCurrency() != null)) {
+            System.err.println("Error: Cannot compare currency type with not currency type: ");
+            System.exit(1);
+        }
+        else {
+            if (left.getCurrency().equals(right.getCurrency())) {
+                result.setValue(p.test(left.getValue(), right.getValue()) ? 1 : 0);
+            } else {
+                double leftValue = left.getValue() / program.getConfigBlock().getExchangeRate(left.getCurrency());
+                double rightValue = right.getValue() / program.getConfigBlock().getExchangeRate(right.getCurrency());
+                result.setValue(p.test(leftValue, rightValue) ? 1 : 0);
+            }
+        }
+        return result;
+    }
+
+
+    static public boolean isEquals(Double d1, Double d2) {
+        return d1.doubleValue() == d2.doubleValue();
+    }
+
+    static public boolean isNotEqual(Double d1, Double d2) {
+        return d1.doubleValue() != d2.doubleValue();
+    }
+
+    static public boolean isLower(Double d1, Double d2) {
+        return d1.doubleValue() < d2.doubleValue();
+    }
+
+    static public boolean isLowerOrEqual(Double d1, Double d2) {
+        return d1.doubleValue() <= d2.doubleValue();
+    }
+
+    static public boolean isGrater(Double d1, Double d2) {
+        return d1.doubleValue() > d2.doubleValue();
+    }
+
+    static public boolean isGraterOrEqual(Double d1, Double d2) {
+        return d1.doubleValue() >= d2.doubleValue();
     }
 }

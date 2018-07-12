@@ -6,7 +6,12 @@ import java.util.List;
 
 public class FunCall extends Node {
     private String name;
-    private List<Node> arguments = new LinkedList<>();
+    private List<Node> arguments;
+
+    public FunCall(String name, List<Node> arguments) {
+        this.name = name;
+        this.arguments = arguments;
+    }
 
     public void setName(String name) {
         this.name = name;

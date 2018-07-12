@@ -6,6 +6,8 @@ public class Variable extends Node {
     private String name;
     private Literal value;
 
+
+
     public void setName(String name) {
         this.name = name;
     }
